@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <Magick++.h>
 #include <opencv2/opencv.hpp>
 
 using namespace cv;
