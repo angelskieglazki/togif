@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( video2gif )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( video2gif video2gif.cpp )
+target_link_libraries( video2gif ${OpenCV_LIBS} )
