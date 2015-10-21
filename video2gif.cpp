@@ -9,16 +9,15 @@ using namespace std;
 using namespace Magick;
 class Video{
 public:
-  Video(const std::string& video_n){ video_name = video_n; };
+  Video(const std::string& video_n, const std::string& gif_n){ video_name = video_n; output_gif_name = gif_n; };
   ~Video() {};
-  void extract_frames();
-  void save_frames();
-  void create_gif();
-//  std::vector<Magick::Image> Magick_frames;
+ void create_gif();
 private:
   std::string video_name;
+  std::string output_gif_name;
   std::vector<Mat> frames;
   std::vector<Magick::Image> Magick_frames;
+  void extract_frames();
   static inline Magick::Image mat_2_magick(cv::Mat& src);
 };
 
@@ -26,11 +25,17 @@ void Video::extract_frames(){
   try{
     VideoCapture cap(this->video_name);
     if (!cap.isOpened()) CV_Error(CV_StsError, "Can't open video file");
-
-    for(int frame_num = 0; frame_num < cap.get(CV_CAP_PROP_FRAME_COUNT); frame_num++){
+    double fIdx = 0;
+    double frnb(cap.get(CV_CAP_PROP_FRAME_COUNT));
+   // std::cout << "frame count = " << frnb<< std::endl;
+    for (;;){
+     // std::cout<<"frame : "<<fIdx<<std::endl;
       Mat frame;
-      cap >> frame;
-      this->frames.push_back(frame);
+      if (fIdx < 0 || fIdx >= frnb) break;
+      cap.set(CV_CAP_PROP_POS_FRAMES, fIdx);
+      bool success = cap.read(frame);
+      if (success) { this->frames.push_back(frame); fIdx = fIdx + 10;}
+      else break;
     }
   }
   catch(cv::Exception& e){
@@ -41,46 +46,22 @@ void Video::extract_frames(){
 
 inline Magick::Image Video::mat_2_magick(cv::Mat& src) {
   Magick::Image mgk(src.cols, src.rows, "BGR", Magick::CharPixel, (char *)src.data);
+  mgk.compressType(JPEGCompression);
+  mgk.quality(50);
   return mgk;
 }
 
 void Video::create_gif() {
+  extract_frames();
   for(std::vector<cv::Mat>::iterator frame = this->frames.begin(); frame != this->frames.end(); ++frame){
     this->Magick_frames.push_back(Video::mat_2_magick(*frame));
   }
-  Magick::writeImages(this->Magick_frames.begin(), this->Magick_frames.end(), "hui.gif");
+  Magick::writeImages(this->Magick_frames.begin(), this->Magick_frames.end(), this->output_gif_name);
 }
 
-void Video::save_frames() {
-  std::vector<int> compression_params;
-  compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
-  compression_params.push_back(100);
-  int frame_number = 0;
-  for(std::vector<Mat>::iterator frame = this->frames.begin(); frame != this->frames.end(); ++frame){
-    string file_path = "bilyat/" + std::to_string(frame_number) + ".jpg";
-    imwrite(file_path, *frame, compression_params);
-    frame_number++;
-  }
-}
 int main(int argc, char** argv){
-  Video myVideo("hui.mp4");
-  myVideo.extract_frames();
-  //myVideo.save_frames();
+  Video myVideo(argv[1], argv[2]);
   myVideo.create_gif();
-
-   /* std::vector<Magick::Image> _frames;
-    Magick::Image img1( "100x100", "white" );
-    img1.pixelColor( 49, 49, "red" );
-    _frames.push_back(img1);
-    
-    Magick::Image img2( "100x100", "red" );
-    img2.pixelColor( 49, 49, "white" );
-    _frames.push_back(img2);
-    
-    img1.animationDelay(2000);
-    img2.animationDelay(2000);
-    
-    Magick::writeImages(_frames.begin(), _frames.end(), "2.gif");
-    */
-      return 0;
+  
+  return 0;
 }
