@@ -9,8 +9,11 @@ using namespace std;
 using namespace Magick;
 class Video{
 public:
-  Video(const std::string& video_n, const std::string& gif_n){ video_name = video_n; output_gif_name = gif_n; };
-  ~Video() {};
+  Video(const std::string& video_n, const std::string& gif_n) :
+      video_name(video_n),
+      output_gif_name(gif_n)
+  {}
+  ~Video() {}
  void create_gif();
 private:
   std::string video_name;
@@ -53,8 +56,8 @@ inline Magick::Image Video::mat_2_magick(cv::Mat& src) {
 
 void Video::create_gif() {
   extract_frames();
-  for(std::vector<cv::Mat>::iterator frame = this->frames.begin(); frame != this->frames.end(); ++frame){
-    this->Magick_frames.push_back(Video::mat_2_magick(*frame));
+  for(auto &frame : this->frames) {
+    this->Magick_frames.push_back(Video::mat_2_magick(frame));
   }
   Magick::writeImages(this->Magick_frames.begin(), this->Magick_frames.end(), this->output_gif_name);
 }
