@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <string>
 #include <iostream>
 #include <Magick++.h>
@@ -63,8 +62,9 @@ void Video::create_gif() {
 }
 
 int main(int argc, char** argv){
-  Video myVideo(argv[1], argv[2]);
-  myVideo.create_gif();
-  
+  if (argc >= 3){
+    Video myVideo(argv[1], argv[2]);
+    myVideo.create_gif();
+  } else std::cout << "Error argument!\n";
   return 0;
 }
