@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8)e
 project( video2gif )
 find_package( OpenCV REQUIRED )
 find_package(ImageMagick COMPONENTS Magick++)
