@@ -1,28 +1,32 @@
 cmake_minimum_required(VERSION 2.8)
 project( video2gif )
 find_package( OpenCV REQUIRED )
-find_package(ImageMagick COMPONENTS Magick++)
+find_package(ImageMagick 6.7 COMPONENTS Magick++ MagickCore)
 include_directories( ${OpenCV_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS})
-add_executable( video2gif video2gif.cpp )
+add_executable( video2gif src/video2gif.cpp )
+if(ImageMagick_FOUND)
+    # Find Imagemagick Library directory
+    get_filename_component(MAGICK_LIB_DIR ${ImageMagick_MagickCore_LIBRARY} DIRECTORY)
+    # Find where Magick++-config lives
+    file(GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS ${MAGICK_LIB_DIR}/Magick++-config)
+    # Ask about CXX and lib flags/locations
+    set(MAGICK_CONFIG ${MAGICK_CONFIG} CACHE STRING "Path to Magick++-config utility")
+    execute_process(COMMAND "${MAGICK_CONFIG}" "--cxxflags" OUTPUT_VARIABLE MAGICK_CXX_FLAGS)
+    execute_process(COMMAND "${MAGICK_CONFIG}" "--libs" OUTPUT_VARIABLE MAGICK_LD_FLAGS)
+    # Add these to cache
+    set(MAGICK_CXX_FLAGS "${MAGICK_CXX_FLAGS}" CACHE STRING "ImageMagick configuration specific compilation flags." )
+    set(MAGICK_LD_FLAGS  "${MAGICK_LD_FLAGS}" CACHE STRING "ImageMagick configuration specific linking flags.")
+    # Split into list:
+    string(REGEX MATCHALL "([^\ ]+)" MAGICK_CXX_FLAGS "${MAGICK_CXX_FLAGS}")
+    string(REGEX MATCHALL "([^\ ]+)" MAGICK_LD_FLAGS "${MAGICK_LD_FLAGS}")
+    # Remove trailing whitespace (CMAKE warns about this)
+    string(STRIP "${MAGICK_CXX_FLAGS}" MAGICK_CXX_FLAGS)
+    string(STRIP "${MAGICK_LD_FLAGS}" MAGICK_LD_FLAGS)
+
+    #target_compile_options(video2gif ${MAGICK_CXX_FLAGS})
+    target_link_libraries(video2gif ${MAGICK_LD_FLAGS})
+
+endif(ImageMagick_FOUND)
+
 target_link_libraries( video2gif ${OpenCV_LIBS} ${ImageMagick_LIBRARIES} )
 
-########################################
-#  Magick++
-########################################
-find_file(MAGICK_CONFIG_EXE "Magick++-config" PATHS
-    "/usr/bin"
-    "/usr/local/bin"
-)
-if (MAGICK_CONFIG_EXE)
-  message(STATUS "Found Image Magick++ libaries -- Enabling MagickPainter.")
-  execute_process(COMMAND Magick++-config --cppflags OUTPUT_VARIABLE Magick_CPP_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process(COMMAND Magick++-config --cxxflags OUTPUT_VARIABLE Magick_CXX_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process(COMMAND Magick++-config --ldflags  OUTPUT_VARIABLE Magick_LD_FLAGS  OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process(COMMAND Magick++-config --libs     OUTPUT_VARIABLE Magick_LIBS      OUTPUT_STRIP_TRAILING_WHITESPACE)
-  
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Magick_CPP_FLAGS} ${Magick_CXX_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${Magick_LIBS} ${Magick_LD_FLAGS}")
-  
-  
-# remove_definitions(-DUSE_MAGICK_PAINTER)
-endif (MAGICK_CONFIG_EXE)
