@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 2.8)
-project( video2gif )
+cmake_minimum_required(VERSION 3.10)
+project(video2gif)
+
 find_package( OpenCV REQUIRED )
-find_package(ImageMagick 6.7 COMPONENTS Magick++ MagickCore)
+find_package(ImageMagick 7.0 COMPONENTS Magick++ MagickCore)
 include_directories( ${OpenCV_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS})
-add_executable( video2gif src/video2gif.cpp )
+
+set(SOURCE_FILES src/video2gif.cpp src/Video.cpp)
+add_executable(video2gif ${SOURCE_FILES})
+
 if(ImageMagick_FOUND)
-    # Find Imagemagick Library directory
-    get_filename_component(MAGICK_LIB_DIR ${ImageMagick_MagickCore_LIBRARY} DIRECTORY)
-    # Find where Magick++-config lives
-    file(GLOB_RECURSE MAGICK_CONFIG FOLLOW_SYMLINKS ${MAGICK_LIB_DIR}/Magick++-config)
     # Ask about CXX and lib flags/locations
     set(MAGICK_CONFIG ${MAGICK_CONFIG} CACHE STRING "Path to Magick++-config utility")
     execute_process(COMMAND "${MAGICK_CONFIG}" "--cxxflags" OUTPUT_VARIABLE MAGICK_CXX_FLAGS)
@@ -28,5 +28,10 @@ if(ImageMagick_FOUND)
 
 endif(ImageMagick_FOUND)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${MAGICK_CXX_FLAGS} ${MAGICK_LD_FLAGS}")
+add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
+add_definitions( -DMAGICKCORE_HDRI_ENABLE=0 )
+
 target_link_libraries( video2gif ${OpenCV_LIBS} ${ImageMagick_LIBRARIES} )
+
 
