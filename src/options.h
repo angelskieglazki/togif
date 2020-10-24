@@ -17,8 +17,8 @@
 struct options_t {
   std::string input_video_name = "";
   std::string output_gif_name = "";
-  unsigned short frame_height = 320;
-  unsigned short frame_width = 240;
+  unsigned short frame_height = 240;
+  unsigned short frame_width = 320;
   unsigned short skip_frame_count = 10;
   size_t gif_quality = 75;
 };

@@ -13,9 +13,19 @@
 
 class Video {
 public:
-  Video(const std::string& video_n, const std::string& gif_n)
-    : video_name(video_n),
-      output_gif_name(gif_n) {}
+  explicit Video(const std::string& video_n,
+                 const std::string& gif_n,
+                 unsigned short frame_h,
+                 unsigned short frame_w,
+                 unsigned short skip_f,
+                 size_t gif_q
+    ) : video_name(video_n),
+        output_gif_name(gif_n),
+        frame_height(frame_h),
+        frame_width(frame_w),
+        skip_frame_count(skip_f),
+        gif_quality(gif_q)
+ {}
 
   ~Video() {}
 
@@ -26,11 +36,15 @@ public:
 
 private:
   void extract_frames();
-  static inline Magick::Image mat_to_magick(cv::Mat& src);
+  Magick::Image mat_to_magick(cv::Mat& src);
 
 private:
-  std::string video_name;
-  std::string output_gif_name;
+  std::string video_name = "";
+  std::string output_gif_name = "";
+  unsigned short frame_height = 240;
+  unsigned short frame_width = 320;
+  unsigned short skip_frame_count = 10;
+  size_t gif_quality = 75;
   std::vector<cv::Mat> frames;
   std::vector<Magick::Image> magick_frames;
 };
