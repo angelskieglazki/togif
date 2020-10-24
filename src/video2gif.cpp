@@ -5,8 +5,9 @@
 #include "Video.h"
 
 int main(int argc, char** argv) {
-
   auto options = parse_cmd_line_opt(argc, argv);
+  
+  std::cout << "Options: " << "\n";
   std::cout << options;
 
   Video video{

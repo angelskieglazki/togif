@@ -17,12 +17,15 @@ void Video::extract_frames() {
     double fIdx = 0;
     double frnb(cap.get(cv::CAP_PROP_FRAME_COUNT));
 
-    std::cout << "frame count = " << frnb<< std::endl;
+    std::cout << "\nFrames count = " << frnb<< "\n\n";
+    std::cout << "Start frames extracting:" << "\n";
 
-    for (;;){
-      std::cout<<"frame : "<<fIdx<<std::endl;
+    float progress = 0.0;
+
+    for (;;) {
+//      std::cout<<"frame : "<<fIdx<<std::endl;
       cv::Mat frame;
-
+       
       if (fIdx < 0 || fIdx >= frnb) break;
 
       cap.set(cv::CAP_PROP_POS_FRAMES, fIdx);
@@ -31,18 +34,31 @@ void Video::extract_frames() {
       if (success) {
         this->frames.push_back(frame);
         fIdx += skip_frame_count;
+        progress = (fIdx/frnb)*100;
       } else {
         break;
       }
+
+      int barWidth = 70;
+
+      std::cout << "[";
+      int pos = (barWidth * progress)/100;
+      for (int i = 0; i < barWidth; ++i) {
+          if (i < pos) std::cout << "=";
+          else if (i == pos) std::cout << ">";
+          else std::cout << " ";
+      }
+      std::cout << "] " << int(progress) << " %\r";
+      std::cout.flush();
     }
-  }
-  catch(cv::Exception& e){
+  } catch(cv::Exception& e){
     std::cerr << e.msg << std::endl;
     exit(1);
   }
 }
 
-inline Magick::Image Video::mat_to_magick(cv::Mat& src) {
+
+Magick::Image Video::mat_to_magick(cv::Mat& src) {
   Magick::Image image(src.cols, src.rows, "BGR", Magick::CharPixel, (char *)src.data);
   image.resize({frame_width, frame_height});
   image.compressType(Magick::JPEGCompression);
@@ -50,13 +66,15 @@ inline Magick::Image Video::mat_to_magick(cv::Mat& src) {
   return image;
 }
 
+
 void Video::create_gif() {
   extract_frames();
+
+  std::cout << "\ngif creating..." << "\n";
   for(auto &frame : this->frames) {
     this->magick_frames.push_back(Video::mat_to_magick(frame));
   }
   Magick::writeImages(this->magick_frames.begin(), this->magick_frames.end(), this->output_gif_name);
-  std::cout<<"End"<<"\n";
 }
 
 
