@@ -21,6 +21,7 @@
 #include <functional>
 #include <stdexcept>
 
+#include <iostream>
 constexpr size_t max_que_size = 100;
 
 class thread_pool {
@@ -119,6 +120,7 @@ void thread_pool::new_worker() {
           task();
         }
       });
+  std::cout<<workers.back().get_id()<<" Thread"<<"\n";
 }
 #endif
 

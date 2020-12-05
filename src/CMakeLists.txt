@@ -30,6 +30,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ${MAGICK_CXX_FLAGS} ${MAGICK_
 add_definitions( -DMAGICKCORE_QUANTUM_DEPTH=16 )
 add_definitions( -DMAGICKCORE_HDRI_ENABLE=0 )
 
-target_link_libraries( togif ${OpenCV_LIBS} ${ImageMagick_LIBRARIES} )
+target_link_libraries( togif ${OpenCV_LIBS} ${ImageMagick_LIBRARIES} -lstdc++fs -lpthread )
 
 

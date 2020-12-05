@@ -13,14 +13,13 @@
 
 class Video {
 public:
-  explicit Video(const std::string& video_n,
-                 const std::string& gif_n,
+  Video(const std::string& video_n,
                  unsigned short frame_h,
                  unsigned short frame_w,
                  unsigned short skip_f,
                  size_t gif_q
     ) : video_name(video_n),
-        output_gif_name(gif_n),
+        output_gif_name(video_n+".gif"),
         frame_height(frame_h),
         frame_width(frame_w),
         skip_frame_count(skip_f),
@@ -29,13 +28,12 @@ public:
 
   ~Video() {}
 
-  Video(const Video& ) = delete;
   Video& operator=( const Video& ) = delete;
 
-  void create_gif();
-
+  int create_gif(int newlines_count);
+  friend std::ostream& operator<<(std::ostream& os, const Video& dt);
 private:
-  void extract_frames();
+  void extract_frames(int newlines_count);
   Magick::Image mat_to_magick(cv::Mat& src);
 
 private:
@@ -48,6 +46,7 @@ private:
   std::vector<cv::Mat> frames;
   std::vector<Magick::Image> magick_frames;
 };
+
 
 #endif
 
