@@ -11,7 +11,8 @@
 #include <memory>
 
 #include "Video.h"
-
+#include "multi_progress.h"
+#include "progress_bar.h"
 
 class GifCreator {
 public:
@@ -19,6 +20,7 @@ public:
   void start_gif_creating();
 private:
   std::vector<std::unique_ptr<Video>> videos;
+  multi_progress<progress_bar> multibars;
 };
 
 #endif

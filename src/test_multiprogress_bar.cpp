@@ -1,12 +1,27 @@
 //g++ -std=c++17 -o test_mpb test_multiprogress_bar.cpp -lpthread
 #include "progress_bar.h"
 #include "multi_progress.h"
+#include <memory>
 #include <thread>
+#include <utility>
 
 int main() {
 
- progress_bar bar1, bar2, bar3;
-  multi_progress<progress_bar, 3> bars(bar1, bar2, bar3);
+ auto bar1 = std::make_unique<progress_bar>();
+ auto bar2 = std::make_unique<progress_bar>();
+ auto bar3 = std::make_unique<progress_bar>();
+ bar1->set_status_text("1 bar");
+ bar2->set_status_text("2 bar");
+ bar3->set_status_text("3 bar");
+ bar1->set_prefix_text("extracting");
+ bar2->set_prefix_text("extracting");
+ bar3->set_prefix_text("extracting");
+
+//  multi_progress<progress_bar, 3> bars(bar1, bar2, bar3);
+  multi_progress<progress_bar> bars;
+  bars.add_bar<progress_bar>(std::move(bar1));
+  bars.add_bar<progress_bar>(std::move(bar2));
+  bars.add_bar<progress_bar>(std::move(bar3));
 
   // Job for the first bar
   auto job1 = [&bars]() {

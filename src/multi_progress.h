@@ -11,10 +11,13 @@
 #define MULTI_PROGRESS_H
 
 #include <iostream>
+#include <memory>
 #include <ostream>
+#include <tuple>
 #include <type_traits>
 #include <atomic>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 static inline void move_up(int lines) { std::cout << "\033[" << lines << "A"; }
@@ -22,33 +25,41 @@ static inline void move_down(int lines) { std::cout << "\033[" << lines << "B"; 
 static inline void move_right(int cols) { std::cout << "\033[" << cols << "C"; }
 static inline void move_left(int cols) { std::cout << "\033[" << cols << "D"; }
 
-template<typename ProgressBar, size_t count>
+template<typename ProgressBar>
 class multi_progress
 {
 public:
-  template<typename... ProgressBars,
-           typename = typename std::enable_if_t<sizeof...(ProgressBars) == count>>
+/*  template<typename... ProgressBars>
   explicit multi_progress(ProgressBars&... bars) {
     pbars = {bars...}; 
   }
+*/
+  template<typename T>
+  void add_bar(std::unique_ptr<T>&& bar) {
+    pbars.emplace_back(std::move(bar));
+  }
 
   template<size_t index>
-  typename std::enable_if_t<(index >=0 && index < count), void>
-  update(float val, std::ostream& os = std::cout) {
-    pbars[index].get().set_progress(val);
+  void update(float val, std::ostream& os = std::cout) {
+    pbars[index].get()->set_progress(val);
+    write_progress(os);
+  }
+
+  void update(float val, size_t index, std::ostream& os = std::cout) {
+    pbars[index].get()->set_progress(val);
     write_progress(os);
   }
 
   void write_progress(std::ostream& os = std::cout) {
     std::unique_lock lock{mpb_mutex};
     if (started) {
-      for (size_t i = 0; i < count; ++i) {
+      for (size_t i = 0; i < 2; ++i) {
         os << "\x1b[A";
       }
     }
 
     for (auto& bar : pbars) {
-      bar.get().write_progress();
+      bar.get()->write_progress();
       os<<"\n";
     }
 
@@ -59,7 +70,7 @@ public:
 private:
   std::atomic<bool> started{false};
   std::mutex mpb_mutex;
-  std::vector<std::reference_wrapper<ProgressBar>> pbars;
+  std::vector<std::unique_ptr<ProgressBar>> pbars;
 };
 
 #endif

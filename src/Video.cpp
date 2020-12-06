@@ -4,7 +4,7 @@
  * Create on Wed 2020-10-21 21:39 UTC
  * 
  */
-
+#include <thread> 
 #include "Video.h"
 
 std::ostream& operator<<(std::ostream& os, const Video& v) {
@@ -31,7 +31,7 @@ void Video::extract_frames() {
 
     float progress = 0.0;
 
-
+//    bar->set_prefix_text("extracting frames");
     for (;;) {
 //      std::cout<<"frame : "<<fIdx<<std::endl;
       cv::Mat frame;
@@ -49,7 +49,8 @@ void Video::extract_frames() {
         break;
       }
 
-      bar->update(progress);
+      multiprogress_bar->update(progress, idx);
+//      bar->update(progress);
     }
   } catch(cv::Exception& e){
     std::cerr << e.msg << std::endl;
@@ -69,12 +70,18 @@ Magick::Image Video::mat_to_magick(cv::Mat& src) {
 
 int Video::create_gif() {
   extract_frames();
-
+return 1;
 //  std::cout << "\ngif creating..." << "\n";
   for(auto &frame : this->frames) {
     this->magick_frames.push_back(Video::mat_to_magick(frame));
   }
   Magick::writeImages(this->magick_frames.begin(), this->magick_frames.end(), this->output_gif_name);
+/*  bar->set_prefix_text("creating gif");
+ for (size_t i = 1; i <= 100; ++i) {
+    bar->update(i);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+ */
   return 1;
 }
 

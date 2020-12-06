@@ -9,7 +9,11 @@
 #include "thread_pool.h"
 
 void GifCreator::add_video(std::unique_ptr<Video>&& video) {
- videos.emplace_back(std::move(video)); 
+  auto bar = std::make_unique<progress_bar>();
+  bar->set_prefix_text(video->name());
+  multibars.add_bar(std::move(bar));
+  video->set_multiprogress_bar(&multibars);
+  videos.emplace_back(std::move(video)); 
 }
 
 

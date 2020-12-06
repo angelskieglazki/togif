@@ -40,6 +40,11 @@ public:
     status_text = val;
   }
 
+  void set_prefix_text(const std::string& val) {
+    std::unique_lock lock{pb_mutex};
+    prefix = val;
+  }
+
   void update(float val, std::ostream& os = std::cout) {
     set_progress(val);
     write_progress(os);
@@ -52,7 +57,7 @@ public:
 
     os << "\r" <<std::flush;
 
-    os << "[";
+    os << prefix << " [";
 
     const auto completed = static_cast<size_t>(
         progress * static_cast<float>(bar_width) / 100.0);
@@ -74,9 +79,10 @@ public:
 private:
   std::mutex pb_mutex;
   float progress{0.0f};
-  size_t bar_width{60};
+  size_t bar_width{70};
   std::string fill{"#"};
   std::string reminder{" "};
   std::string status_text{""};
+  std::string prefix{""};
 };
 #endif
