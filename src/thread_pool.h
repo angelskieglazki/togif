@@ -120,7 +120,7 @@ void thread_pool::new_worker() {
           task();
         }
       });
-  std::cout<<workers.back().get_id()<<" Thread"<<"\n";
+//  std::cout<<workers.back().get_id()<<" Thread"<<"\n";
 }
 #endif
 

@@ -57,7 +57,7 @@ public:
 
     os << "\r" <<std::flush;
 
-    os << prefix << " [";
+    os << " [";
 
     const auto completed = static_cast<size_t>(
         progress * static_cast<float>(bar_width) / 100.0);
@@ -78,15 +78,24 @@ public:
   }
 
   void set_enable() {
+    std::unique_lock lock{pb_mutex};
     is_running = true;
+    is_complete = false;
   }
 
   void set_disable() {
+    std::unique_lock lock{pb_mutex};
     is_running = false;
+    is_complete = true;
   }
 
   bool running() {
+    std::unique_lock lock{pb_mutex};
     return is_running;
+  }
+  bool complete() {
+    std::unique_lock lock{pb_mutex};
+    return is_complete;
   }
 private:
   std::mutex pb_mutex;
@@ -97,5 +106,6 @@ private:
   std::string status_text{""};
   std::string prefix{""};
   std::atomic<bool> is_running{false};
+  std::atomic<bool> is_complete{false};
 };
 #endif

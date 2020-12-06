@@ -62,24 +62,29 @@ public:
 
   void write_progress(std::ostream& os = std::cout) {
     std::unique_lock lock{mpb_mutex};
+//    os<<"\n";
+    int count = 0;
     if (started) {
-      int count = 0;
       for (auto& bar : pbars) {
-        if (bar.get()->running()) ++count;
+        if (bar.get()->running() || bar.get()->complete()) ++count;
       }
-      
-      for (size_t i = 0; i < count; ++i) {
-        os << "\x1b[A";
-      }
+//      for (size_t i = 1; i < count; ++i)
+//        os << "\x1b[A";
+      move_up(count);
     }
 
     for (auto& bar : pbars) {
-      if (bar.get()->running()) {
+      if (bar.get()->running() || bar.get()->complete()) {
         bar.get()->write_progress();
-        os<<"\n";
+  //      if (count > 1) {
+          os<<"\n";
+//          --count;
+//        }
       }
     }
-
+    static int i=0;
+    ++i;
+    if (i == 2) abort();
     if (!started) {
       started = true;
     }

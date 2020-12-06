@@ -14,8 +14,8 @@ namespace fs = std::filesystem;
 int main(int argc, char** argv) {
   auto options = parse_cmd_line_opt(argc, argv);
   
-  std::cout << "Options: " << "\n";
-  std::cout << options;
+//  std::cout << "Options: " << "\n";
+//  std::cout << options;
 
   const std::regex video_regex(options.input_video_name);
 
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
   for (const auto & entry : fs::directory_iterator("."))
     if (std::regex_match(entry.path().filename().string() , video_regex) == 1) {
           
-          std::cout<<entry.path().filename().string()<<"\n";
+  //        std::cout<<entry.path().filename().string()<<"\n";
           gif_creator.add_video(std::move(std::make_unique<Video>(
             idx,
             entry.path().filename().string(),

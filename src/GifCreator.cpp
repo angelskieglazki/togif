@@ -10,7 +10,7 @@
 
 void GifCreator::add_video(std::unique_ptr<Video>&& video) {
   auto bar = std::make_unique<progress_bar>();
-  bar->set_prefix_text(video->name());
+  bar->set_status_text(video->name());
   multibars.add_bar(std::move(bar));
   video->set_multiprogress_bar(&multibars);
   videos.emplace_back(std::move(video)); 
@@ -22,7 +22,6 @@ void GifCreator::start_gif_creating() {
   std::vector< std::future<int> > results;
 
   for (auto& v : videos) {
-
     results.emplace_back(
           pool.add_to_thread_pool([&] {
               return v->create_gif();
