@@ -3,7 +3,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} )
 include_directories( ${enCV_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS})
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES video2gif.cpp Video.cpp)
+set(SOURCE_FILES video2gif.cpp Video.cpp GifCreator.cpp)
 add_executable(togif ${SOURCE_FILES})
 
 if(ImageMagick_FOUND)
