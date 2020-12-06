@@ -76,6 +76,18 @@ public:
 
     os << " " << status_text;
   }
+
+  void set_enable() {
+    is_running = true;
+  }
+
+  void set_disable() {
+    is_running = false;
+  }
+
+  bool running() {
+    return is_running;
+  }
 private:
   std::mutex pb_mutex;
   float progress{0.0f};
@@ -84,5 +96,6 @@ private:
   std::string reminder{" "};
   std::string status_text{""};
   std::string prefix{""};
+  std::atomic<bool> is_running{false};
 };
 #endif

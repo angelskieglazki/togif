@@ -50,17 +50,34 @@ public:
     write_progress(os);
   }
 
+  void enable(size_t index) {
+    std::unique_lock lock{mpb_mutex};
+    pbars[index].get()->set_enable();
+  }
+
+  void disable(size_t index) {
+    std::unique_lock lock{mpb_mutex};
+    pbars[index].get()->set_disable();
+  }
+
   void write_progress(std::ostream& os = std::cout) {
     std::unique_lock lock{mpb_mutex};
     if (started) {
-      for (size_t i = 0; i < 2; ++i) {
+      int count = 0;
+      for (auto& bar : pbars) {
+        if (bar.get()->running()) ++count;
+      }
+      
+      for (size_t i = 0; i < count; ++i) {
         os << "\x1b[A";
       }
     }
 
     for (auto& bar : pbars) {
-      bar.get()->write_progress();
-      os<<"\n";
+      if (bar.get()->running()) {
+        bar.get()->write_progress();
+        os<<"\n";
+      }
     }
 
     if (!started) {

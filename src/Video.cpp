@@ -30,7 +30,7 @@ void Video::extract_frames() {
 //    std::cout << "Start frames extracting:" << "\n";
 
     float progress = 0.0;
-
+    multiprogress_bar->enable(idx);
 //    bar->set_prefix_text("extracting frames");
     for (;;) {
 //      std::cout<<"frame : "<<fIdx<<std::endl;
@@ -50,8 +50,9 @@ void Video::extract_frames() {
       }
 
       multiprogress_bar->update(progress, idx);
-//      bar->update(progress);
     }
+  
+    multiprogress_bar->disable(idx);
   } catch(cv::Exception& e){
     std::cerr << e.msg << std::endl;
     exit(1);
