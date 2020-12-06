@@ -10,6 +10,7 @@
 
 #include <Magick++.h>
 #include <opencv2/opencv.hpp>
+#include "progress_bar.h"
 
 class Video {
 public:
@@ -24,16 +25,22 @@ public:
         frame_width(frame_w),
         skip_frame_count(skip_f),
         gif_quality(gif_q)
- {}
+ {
+   bar = new progress_bar();
+   bar->set_bar_width(70);
+   bar->set_status_text(video_n);
+   bar->fill_bar_progress_with("=");
+   bar->fill_bar_remainder_with(" ");
+ }
 
-  ~Video() {}
+  ~Video() { delete bar; }
 
   Video& operator=( const Video& ) = delete;
 
-  int create_gif(int newlines_count);
+  int create_gif();
   friend std::ostream& operator<<(std::ostream& os, const Video& dt);
 private:
-  void extract_frames(int newlines_count);
+  void extract_frames();
   Magick::Image mat_to_magick(cv::Mat& src);
 
 private:
@@ -45,6 +52,7 @@ private:
   size_t gif_quality = 75;
   std::vector<cv::Mat> frames;
   std::vector<Magick::Image> magick_frames;
+  progress_bar* bar;
 };
 
 

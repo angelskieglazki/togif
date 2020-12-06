@@ -1,3 +1,5 @@
+#include <memory>
+#include <memory>
 #include <string>
 #include <iostream>
 
@@ -19,16 +21,17 @@ int main(int argc, char** argv) {
 
   std::string path = ".";
 
-  std::vector<Video> videos;
+  std::vector<std::unique_ptr<Video>> videos;
   for (const auto & entry : fs::directory_iterator("."))
     if (std::regex_match(entry.path().filename().string() , video_regex) == 1) {
-          Video video{ entry.path().filename().string(),
+          std::cout<<entry.path().filename().string()<<"\n";
+          videos.emplace_back(std::make_unique<Video>(
+            entry.path().filename().string(),
             options.frame_height,
             options.frame_width,
             options.skip_frame_count,
             options.gif_quality
-            };
-          videos.emplace_back(video);
+            ));
     }
 
   std::cout<<"\n";
@@ -36,17 +39,14 @@ int main(int argc, char** argv) {
   thread_pool pool(2);
   std::vector< std::future<int> > results;
 
-  int c = 0;
-  for (auto& v : videos) {    
+  for (auto& v : videos) {
+
     results.emplace_back(
           pool.add_to_thread_pool([&] {
-              return v.create_gif(c);
+              return v->create_gif();
             })
         );
-    ++c;
   }
-
-
 
 
   return 0;

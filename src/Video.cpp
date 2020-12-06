@@ -16,7 +16,7 @@ std::ostream& operator<<(std::ostream& os, const Video& v) {
   return os;
 }
 
-void Video::extract_frames(int newlines_count) {
+void Video::extract_frames() {
   try{
     cv::VideoCapture cap(this->video_name);
     if (!cap.isOpened()) {
@@ -31,8 +31,6 @@ void Video::extract_frames(int newlines_count) {
 
     float progress = 0.0;
 
-    for (int c = 0; c < newlines_count; ++c)
-//      std::cout<<"\n";
 
     for (;;) {
 //      std::cout<<"frame : "<<fIdx<<std::endl;
@@ -51,18 +49,7 @@ void Video::extract_frames(int newlines_count) {
         break;
       }
 
-      int barWidth = 70;
-
-      
-      std::cout << "[";
-      int pos = (barWidth * progress)/100;
-      for (int i = 0; i < barWidth; ++i) {
-          if (i < pos) std::cout << "=";
-          else if (i == pos) std::cout << ">";
-          else std::cout << " ";
-      }
-      std::cout << "] " << int(progress) << " % "<<this->video_name<<"\r";
-      std::cout.flush();
+      bar->update(progress);
     }
   } catch(cv::Exception& e){
     std::cerr << e.msg << std::endl;
@@ -80,8 +67,8 @@ Magick::Image Video::mat_to_magick(cv::Mat& src) {
 }
 
 
-int Video::create_gif(int newlines_count) {
-  extract_frames(newlines_count);
+int Video::create_gif() {
+  extract_frames();
 
 //  std::cout << "\ngif creating..." << "\n";
   for(auto &frame : this->frames) {
