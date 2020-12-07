@@ -55,9 +55,17 @@ public:
 
     if (progress > 100.0f) return;
 
+    os << "\r";
+    for (size_t i = 0;
+        i < bar_width + prefix.length() + status_text.length() + 20;
+        ++i) {
+      os << " ";
+    }
+    os << std::flush;
+
     os << "\r" <<std::flush;
 
-    os << " [";
+    os << prefix << " [";
 
     const auto completed = static_cast<size_t>(
         progress * static_cast<float>(bar_width) / 100.0);
@@ -75,6 +83,10 @@ public:
         size_t(100)) << "%"; 
 
     os << " " << status_text;
+  }
+
+  void write_blank(std::ostream& os = std::cout) {
+    std::unique_lock lock{pb_mutex};
   }
 
   void set_enable() {
@@ -101,7 +113,7 @@ private:
   std::mutex pb_mutex;
   float progress{0.0f};
   size_t bar_width{70};
-  std::string fill{"#"};
+  std::string fill{"="};
   std::string reminder{" "};
   std::string status_text{""};
   std::string prefix{""};

@@ -18,7 +18,7 @@ void GifCreator::add_video(std::unique_ptr<Video>&& video) {
 
 
 void GifCreator::start_gif_creating() {
-  thread_pool pool(2);
+  thread_pool pool(std::thread::hardware_concurrency());
   std::vector< std::future<int> > results;
 
   for (auto& v : videos) {

@@ -31,7 +31,7 @@ void Video::extract_frames() {
 
     float progress = 0.0;
     multiprogress_bar->enable(idx);
-//    bar->set_prefix_text("extracting frames");
+    multiprogress_bar->set_prefix(idx, "extracting frames");
     for (;;) {
 //      std::cout<<"frame : "<<fIdx<<std::endl;
       cv::Mat frame;
@@ -71,18 +71,23 @@ Magick::Image Video::mat_to_magick(cv::Mat& src) {
 
 int Video::create_gif() {
   extract_frames();
-return 1;
+;
 //  std::cout << "\ngif creating..." << "\n";
   for(auto &frame : this->frames) {
     this->magick_frames.push_back(Video::mat_to_magick(frame));
   }
   Magick::writeImages(this->magick_frames.begin(), this->magick_frames.end(), this->output_gif_name);
-/*  bar->set_prefix_text("creating gif");
- for (size_t i = 1; i <= 100; ++i) {
-    bar->update(i);
+
+
+  multiprogress_bar->enable(idx);
+  multiprogress_bar->set_prefix(idx, "gif creating");
+
+  for (size_t i = 1; i <= 100; ++i) {
+    multiprogress_bar->update(i, idx);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
- */
+
+  multiprogress_bar->disable(idx);
   return 1;
 }
 

@@ -29,11 +29,12 @@ template<typename ProgressBar>
 class multi_progress
 {
 public:
-/*  template<typename... ProgressBars>
-  explicit multi_progress(ProgressBars&... bars) {
+  template<typename... ProgressBars>
+  multi_progress(ProgressBars&... bars) {
     pbars = {bars...}; 
   }
-*/
+  multi_progress() { }
+
   template<typename T>
   void add_bar(std::unique_ptr<T>&& bar) {
     pbars.emplace_back(std::move(bar));
@@ -50,9 +51,21 @@ public:
     write_progress(os);
   }
 
+  template<size_t index>
+  void enable() {
+    std::unique_lock lock{mpb_mutex};
+    pbars[index].get()->set_enable();
+  }
+
   void enable(size_t index) {
     std::unique_lock lock{mpb_mutex};
     pbars[index].get()->set_enable();
+  }
+
+  template<size_t index>
+  void disable() {
+    std::unique_lock lock{mpb_mutex};
+    pbars[index].get()->set_disable();
   }
 
   void disable(size_t index) {
@@ -60,31 +73,28 @@ public:
     pbars[index].get()->set_disable();
   }
 
+  void set_prefix(size_t index, const std::string& prefix) {
+    std::unique_lock lock{mpb_mutex};
+    pbars[index].get()->set_prefix_text(prefix);
+  }
+
   void write_progress(std::ostream& os = std::cout) {
     std::unique_lock lock{mpb_mutex};
-//    os<<"\n";
-    int count = 0;
-    if (started) {
-      for (auto& bar : pbars) {
-        if (bar.get()->running() || bar.get()->complete()) ++count;
-      }
-//      for (size_t i = 1; i < count; ++i)
-//        os << "\x1b[A";
-      move_up(count);
-    }
 
     for (auto& bar : pbars) {
       if (bar.get()->running() || bar.get()->complete()) {
         bar.get()->write_progress();
-  //      if (count > 1) {
           os<<"\n";
-//          --count;
-//        }
       }
     }
-    static int i=0;
-    ++i;
-    if (i == 2) abort();
+
+    int count = 0;
+
+    for (auto& bar : pbars) {
+      if (bar.get()->running() || bar.get()->complete()) ++count;
+    }
+    move_up(count);
+
     if (!started) {
       started = true;
     }

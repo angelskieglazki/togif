@@ -26,7 +26,6 @@ int main(int argc, char** argv) {
   for (const auto & entry : fs::directory_iterator("."))
     if (std::regex_match(entry.path().filename().string() , video_regex) == 1) {
           
-  //        std::cout<<entry.path().filename().string()<<"\n";
           gif_creator.add_video(std::move(std::make_unique<Video>(
             idx,
             entry.path().filename().string(),
@@ -39,6 +38,7 @@ int main(int argc, char** argv) {
     }
 
   gif_creator.start_gif_creating();
+  move_down(idx);
   std::cout<<"\n";
   return 0;
 }
