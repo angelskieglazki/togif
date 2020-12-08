@@ -62,16 +62,15 @@ int main(int argc, char** argv) {
     }
     std::cout<<rgb_bytes.size()<<"\n";
     cv::Mat img(115, 302, CV_8UC3, rgb_bytes.data());
+//     cv::imwrite(std::to_string(i)+"s.png", img);
     for (int i=0; i<23; ++i) {
       writer.write(img);
     }
-    cv::imwrite(std::to_string(i)+"s.png", img);
+//    images.emplace_back(cv::imread(std::to_string(i)+"s.png"));
     input.close();
     ++i;
   }
 
-
-  
   writer.release();
   
   }
