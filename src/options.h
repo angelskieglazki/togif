@@ -15,11 +15,17 @@
 #include <getopt.h>
 
 struct options_t {
-  std::string input_video_name = "";
+  enum mode {
+    mVideoToGif = 0,
+    mRawToVideo = 1,
+    mImagesToVideo = 2
+  };
+  std::string input_video_name;
   unsigned short frame_height = 240;
   unsigned short frame_width = 320;
   unsigned short skip_frame_count = 10;
   size_t gif_quality = 75;
+  std::string input_regex;
 };
 
 std::ostream& operator<<(std::ostream& os, const options_t& opts) {
@@ -133,7 +139,7 @@ options_t parse_cmd_line_opt(int argc, char** argv) {
   }
 
   if (set_the_needful(opts) != EXIT_SUCCESS) {
-    usage();
+//    usage();
     exit(EXIT_FAILURE);
   }
 

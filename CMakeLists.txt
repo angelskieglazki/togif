@@ -4,7 +4,7 @@ project(togif)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} )
 
 find_package( OpenCV REQUIRED )
-find_package(ImageMagick 7.0 COMPONENTS Magick++ MagickCore)
+find_package(ImageMagick 6.0 COMPONENTS Magick++ MagickCore)
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
