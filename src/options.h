@@ -14,12 +14,20 @@
 #include <string>
 #include <getopt.h>
 
+enum opt_error_t {
+  kModeNotSet   = 1,
+  kModeWrongSet = 2,
+};
+
+enum opt_mode_t {
+  kNoMode         = 0x00,
+  kVideoToGif     = 0x01,
+  kRawToVideo     = 0x02,
+  kImagesToVideo  = 0x04
+};
+
 struct options_t {
-  enum mode {
-    mVideoToGif = 0,
-    mRawToVideo = 1,
-    mImagesToVideo = 2
-  };
+  int mode = kNoMode;
   std::string input_video_name;
   unsigned short frame_height = 240;
   unsigned short frame_width = 320;
@@ -29,6 +37,7 @@ struct options_t {
 };
 
 std::ostream& operator<<(std::ostream& os, const options_t& opts) {
+  os << "Mode: " << opts.mode << '\n';
   os << "input_video_name: " << opts.input_video_name << "\n";
   os << "frame_height "  << opts.frame_height << "\n";
   os << "frame_width "  << opts.frame_width << "\n";
@@ -58,6 +67,15 @@ void usage() {
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int set_the_needful(const options_t& options) {
+  if (options.mode == kNoMode) {
+    return kModeNotSet;    
+  }
+
+  if (options.mode != kVideoToGif ||
+      options.mode != kRawToVideo ||
+      options.mode != kImagesToVideo) {
+    return kModeWrongSet;
+  }
   if (options.input_video_name.empty()) {
     return EXIT_FAILURE;
   }
@@ -82,19 +100,28 @@ options_t parse_cmd_line_opt(int argc, char** argv) {
   while (1) {
     int option_index = 0;
     static struct option long_options[] = {
-      { "video-name-in", required_argument, NULL, 'v' },
-      { "frame-height", required_argument, NULL, 'h' },
-      { "frame-width", required_argument, NULL, 'w' },
+      { "mode",             required_argument, NULL, 'm'},
+      { "video-name-in",    required_argument, NULL, 'v' },
+      { "frame-height",     required_argument, NULL, 'h' },
+      { "frame-width",      required_argument, NULL, 'w' },
       { "skip-frame-count", required_argument, NULL, 's' },
-      { "gif-quality", required_argument, NULL, 'q' },
-      { "help", no_argument, NULL, 1},
-      { 0, 0, NULL, 0}
+      { "gif-quality",      required_argument, NULL, 'q' },
+      { "help",             no_argument,       NULL,  1  },
+      { 0,                  0,                 NULL,  0  }
     };
 
-    c = getopt_long(argc, argv, "v:h:w:s:q:", long_options, &option_index);
+    c = getopt_long(argc, argv, "m:v:h:w:s:q:", long_options, &option_index);
     if (c == -1) break;
 
     switch (c) {
+      case 'm':
+        try {
+          opts.mode = std::atoi(optarg);
+        } catch(const std::exception& e) {
+          std::cerr << e.what() << '\n';
+        }
+        break;
+
       case 'v':
         opts.input_video_name = optarg;
         break;

@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
   std::vector<cv::Mat> images;
   images.reserve(500);
   std::set<std::string> images_names;
-  for (const auto & entry : fs::directory_iterator("./RAW")) {
+  for (const auto & entry : fs::directory_iterator("./")) {
     if (std::regex_match(entry.path().filename().string() , video_regex) == 1) {
       images_names.emplace(entry.path().string());
     }
