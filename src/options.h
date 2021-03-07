@@ -8,6 +8,7 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <ostream>
@@ -29,6 +30,8 @@ enum opt_mode_t {
 struct options_t {
   int mode = kNoMode;
   std::string input_video_name;
+  std::string workpath = "./";
+  std::string wildcard_regex;
   unsigned short frame_height = 240;
   unsigned short frame_width = 320;
   unsigned short skip_frame_count = 10;
@@ -76,6 +79,7 @@ int set_the_needful(const options_t& options) {
       options.mode != kImagesToVideo) {
     return kModeWrongSet;
   }
+
   if (options.input_video_name.empty()) {
     return EXIT_FAILURE;
   }
@@ -102,15 +106,17 @@ options_t parse_cmd_line_opt(int argc, char** argv) {
     static struct option long_options[] = {
       { "mode",             required_argument, NULL, 'm'},
       { "video-name-in",    required_argument, NULL, 'v' },
+      { "work-path",        required_argument, NULL, 'd' },
       { "frame-height",     required_argument, NULL, 'h' },
       { "frame-width",      required_argument, NULL, 'w' },
       { "skip-frame-count", required_argument, NULL, 's' },
       { "gif-quality",      required_argument, NULL, 'q' },
       { "help",             no_argument,       NULL,  1  },
+      { "wildcard-reg",     required_argument, NULL,  0  },
       { 0,                  0,                 NULL,  0  }
     };
 
-    c = getopt_long(argc, argv, "m:v:h:w:s:q:", long_options, &option_index);
+    c = getopt_long(argc, argv, "m:v:d:h:w:s:q:", long_options, &option_index);
     if (c == -1) break;
 
     switch (c) {
@@ -124,6 +130,12 @@ options_t parse_cmd_line_opt(int argc, char** argv) {
 
       case 'v':
         opts.input_video_name = optarg;
+        std::cout<<"OPTION: "<<opts.input_video_name<<'\n';
+        std::cout<<"OPTION: "<<optarg<<'\n';
+        break;
+      case 'd':
+        opts.workpath = optarg;
+        std::cout<<opts.workpath<<'\n';
         break;
 
       case 'h':
@@ -158,6 +170,14 @@ options_t parse_cmd_line_opt(int argc, char** argv) {
         }
         break;
 
+      case 0:
+        if (long_options[option_index].flag != 0) break;
+        if (strcmp(long_options[option_index].name, "wildcard-reg") == 0) {
+          opts.wildcard_regex = optarg;
+          std::cout<<"Wildcard: "<<opts.wildcard_regex<<'\n';
+        }
+        break;
+
       case 1:
       default:
         usage();
@@ -165,10 +185,10 @@ options_t parse_cmd_line_opt(int argc, char** argv) {
     }
   }
 
-  if (set_the_needful(opts) != EXIT_SUCCESS) {
+//  if (set_the_needful(opts) != EXIT_SUCCESS) {
 //    usage();
-    exit(EXIT_FAILURE);
-  }
+//    exit(EXIT_FAILURE);
+//  }
 
   return opts;
 }
