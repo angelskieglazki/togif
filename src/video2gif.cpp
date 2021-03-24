@@ -17,12 +17,11 @@
 #include "algs/img_to_video_alg.h"
 
 
-
-
 template<typename T, typename CreatingAlg>
 void create(T& opt) {
   CreatingAlg::create(opt);
 }
+
 
 int main(int argc, char** argv) {
   auto options = parse_cmd_line_opt(argc, argv);
@@ -39,7 +38,6 @@ int main(int argc, char** argv) {
     } else if (options.mode == kVideoToGif) {
       create<options_t, VideoToGifAlg>(options);
     }
- 
   }
   
   return 0;
