@@ -30,7 +30,7 @@ public:
     for (const auto& entry : fs::directory_iterator(options.workpath)) {
       if (fnmatch(options.wildcard_regex.c_str(), entry.path().filename().string().c_str(), 0) == 0) {
         std::cout<<entry.path().filename().string()<<"\n";
-        images_names.emplace(entry.path().string());
+        images_names.emplace(entry.path().filename().string());
         ++s;
       }
     }
@@ -39,26 +39,22 @@ public:
 
     for (auto& s : images_names) {
       std::cout<<s<<"\n";
-      images.emplace_back(cv::imread(s));
+      images.emplace_back(cv::imread(options.workpath+"/"+s));
     }
 
     auto firstname = std::begin(images_names);
     auto arr = split(*firstname, '.');
-    const std::regex size_regex("[0-9]+x[0-9]+");
+    const std::regex num_regex("[0-9]+");
     std::string out_video_name;
-    std::size_t w = 0;
-    std::size_t h = 0;
     
     for (const auto& p : arr) {
-      if (std::regex_match(p , size_regex) == 1) {
-        auto wh = split(p, 'x');
-        w = std::atoi(wh[0].c_str());
-        h = std::atoi(wh[1].c_str());
-      } else if (p.find("Path") == std::string::npos){
+      if ((p.find("Path") == std::string::npos) && (std::regex_match(p, num_regex) == 0)) {
         out_video_name.append(p).append(1,'.');
       }
     }
-
+    auto firstimage = images[0];
+    std::size_t w = firstimage.cols;
+    std::size_t h = firstimage.rows;
     out_video_name.append("avi");
     std::cout<<"W: "<<w<<'\n';
     std::cout<<"H: "<<h<<'\n';
