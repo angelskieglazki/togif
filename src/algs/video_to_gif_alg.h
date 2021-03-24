@@ -10,7 +10,7 @@
 #ifndef VIDEOTOGIFALG_H
 #define VIDEOTOGIFALG_H
 #include <filesystem>
-
+#include <regex>
 #include "../GifCreator.h"
 namespace fs = std::filesystem;
 
@@ -20,8 +20,9 @@ public:
   static void create(T& options) {
     GifCreator gif_creator;
     size_t idx = 0;
+    const std::regex video_regex(options.input_video_name);
     for (const auto & entry : fs::directory_iterator("."))
-  //    if (std::regex_match(entry.path().filename().string() , video_regex) == 1) {
+      if (std::regex_match(entry.path().filename().string() , video_regex) == 1) {
             
             gif_creator.add_video(std::move(std::make_unique<Video>(
               idx,
@@ -32,7 +33,7 @@ public:
               options.gif_quality
               )));
           ++idx;
-  //    }
+      }
 
     gif_creator.start_gif_creating();
     move_down(idx);
