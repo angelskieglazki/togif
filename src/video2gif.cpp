@@ -25,7 +25,7 @@ void create(T& opt) {
 
 //./togif -m 2 -d ./RAW --wildcard-reg=*Dragon_Hills*Path*310x163*
 //./togif -m 4 -d ./ZZZ --wildcard-reg=*Misty_Town*Path*
-
+//./togif -m 1  --video-name-in="[0-9]*.MOV"
 int main(int argc, char** argv) {
   auto options = parse_cmd_line_opt(argc, argv);
   
